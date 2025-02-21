@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>随机爱心和文字动画</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden;
+            background-color: black;
+        }
+
+        canvas {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+<canvas id="heartCanvas"></canvas>
+
+<script>
+    const canvas = document.getElementById('heartCanvas');
+    const ctx = canvas.getContext('2d');
+
+    let hearts = [];
+    let texts = [];
+
+    // 设置画布大小填满整个窗口
+    function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+
+    // 绘制爱心
+    function drawHeart(x, y, size, opacity) {
+        ctx.fillStyle = `rgba(255, 105, 180, ${opacity})`; // 粉色
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        ctx.bezierCurveTo(x - size / 2, y - size / 2, x - size, y + size / 3, x, y + size);
+        ctx.bezierCurveTo(x + size, y + size / 3, x + size / 2, y - size / 2, x, y);
+        ctx.closePath();
+        ctx.fill();
+    }
+
+    // 绘制文字，每行最多10个字符
+    function drawText(text, x, y, opacity, fontSize, color) {
+        ctx.fillStyle = `rgba(${color.r}, ${color.g}, ${color.b}, ${opacity})`;
+        ctx.font = `${fontSize}px Arial`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'top'; // Use 'top' for text to start at the given y position
+        let maxWidth = canvas.width - 40; // 留点边距
+        const lineHeight = fontSize * 1.5; // 行高
+
+        // 处理每行最多10个字符
+        const maxCharsPerLine = Math.floor(canvas.width / fontSize / 2);
+        let lines = [];
+        for (let i = 0; i < text.length; i += maxCharsPerLine) {
+            lines.push(text.substring(i, i + maxCharsPerLine));
+        }
+
+        // 绘制每一行文字
+        for (let i = 0; i < lines.length; i++) {
+            ctx.fillText(lines[i], x, y + i * lineHeight);
+        }
+    }
+
+    // 生成随机爱心
+    function createHeart() {
+        const x = Math.random() * canvas.width;
+        const y = Math.random() * canvas.height;
+        const size = Math.random() * canvas.width / 20 + 10; // 随机大小在30到100之间
+        const opacity = Math.random(); // 随机透明度
+        hearts.push({x, y, size, opacity, fadeOut: Math.random() > 0.5});
+    }
+
+    // 生成随机文字
+    function createText() {
+        const textOptions = [
+            '曾经有人和我说如果你爱上了一个对的人就会觉得他为你打开了一扇门你会看到之前没有见过的另一个奇妙的世界',
+            '是的所以你对我来说是特别的姐姐',
+            '我一不小心就会自闭而你不会敲门只是轻手轻脚走到我身边像空气将我环抱',
+            '那我希望我永远存在于你的生活中让你时时刻刻都知道我在意你被我填满被我环抱做你的空气做你的耳机做你的创口贴。',
+            '你不用站在太阳里在我眼里你就会发光',
+            '那我站在黑暗里也是一样的吗？',
+            '如果你站在黑暗里我会伸手给你先问问你外面阳光很好你想不想和我一起出来走走如果你不想的话我就带着小板凳拍拍小凳子跟你说站这么久累了吧坐下休息会别害怕我在你旁边陪你你不再是一个人了',
+            '呜呜呜呜呜想哭',
+            '一直在我身边吧',
+            '好',
+            '这个世界有没有天使和翅膀其实我是不清楚的我希望是有的如果没有的话那我希望有人可以带着翅膀来到你身边',
+            '那我更希望有一双翅膀逃出黑暗逃出桎梏飞向光明飞向未来飞向爱人的身边停歇',
+            '那如果能有一双翅膀我也希望能飞向你身边和你一起逃出一切束缚告诉你一切都过去了此时此刻是新的开始',
+            '此时此刻是新的开始是新的未来', '白日梦才值得你我深陷就在一次次日升月落里再爱一次人间',
+            '重新拾起勇气是困难的但与你相遇后我却觉得明媚又温暖我会珍藏你漂亮的名字再一次觉得人间也是值得留恋的',
+            '那珍藏的只是我的名字吗？',
+            '你的名字就包含了你的所有珍藏你的所有',
+            '那如果我的名字不好听呢',
+            '名字不是单纯的指名字无论你叫什么名字我都会好好珍藏因为那是你独一无二的你世界无法复刻的你所以换句话而言被我好好珍藏的是你这个人',
+            '很奇怪你总是有一种很熟悉的感觉好像我们本该认识不本该认识很久',
+            '什么担忧慢慢说我来找你',
+            '姐姐爱人怎么会这么辛苦不会爱的人又为何对爱苦求',
+            '第一个问题爱人是辛苦的就像那句话说的要产生羁绊就要承担掉眼泪的风险但是相爱是幸福的因为你的眼泪是有人为你擦去的更多的是那个人是不想让你掉眼泪的第二个问题这世界上不存在会爱不会爱没有人天生就懂爱有些人不是路痴她可能自己就找到了名为爱的那条路有些人有点路痴她需要一个人牵着她去找爱的那条路',
+            '你可以反复和我确认',
+            '与你相遇苦涩悲伤的灵魂终于得到了救赎我想晦涩难懂的我是能被你看见的在黑暗中站了那么久我也想看看太阳我想向着阳光和爱我想我灵魂注目的是你我想以惨胜换爱在余生茂盛',
+            '如果可以和我牵手去看看看这个世界吧不管是黑暗还是阳光都去看看吧许个愿望希望和你都能接住彼此',
+            '在万米高空想念就会加一万倍',
+            '那我想念你一万遍',
+            '那我想念一万零一遍',
+            '我好像很少被别人牵动一整个情绪但是却不自觉地会在想现在的她是什么心情我以为想念是一个时刻但是想你却连绵不绝一个个细节让我意识到在现在这个时候我有多思念你',
+            '之前看到了一句特别喜欢的话。羁绊的刻度往往并不取决于它能带给你多少幸福。而取决于你愿意为它承受多少痛苦。正如我分明在回眸的瞬间就预感到暴雪将至，却无法抑制地为你动摇、为你停滞、为你软弱。在一万个正确选择中，走向那个与你有关的错误。就让命运的红线紧勒在我的掌心，直至深入血肉。',
+            '那还有我看到的另一句',
+            '“我相信这世界上，有些人、有些事、有些爱，在见到的第一次，就注定要羁绊一生，就注定像一棵树一样，生长在心里，生生世世。”',
+            '希望你的掌纹里有我的命运',
+            '我没有那么多话但是我喜欢和你说一些乱七八糟的话',
+            '祝我们有明天这句话好浪漫',
+            '想念的滋味和焦虑的滋味可以被我区分的时候我想我找到了离爱更近的道路',
+            '好像找到了姐姐'
+        ];
+        const randomText = textOptions[Math.floor(Math.random() * textOptions.length)];
+        const fontSize = Math.random() * 30 + 10; // 随机字体大小，范围在20到60之间
+        const opacity = 0;
+        const color = {r: Math.random() * 200 + 55, g: Math.random() * 200 + 55, b: Math.random() * 200 + 55}; // 随机浅色
+        const x = Math.random() * canvas.width;
+        const y = Math.random() * canvas.height;
+
+        // Add a timer to track how long the text has been visible
+        texts.push({
+            text: randomText,
+            x, y,
+            opacity,
+            fontSize,
+            color,
+            fadeOut: false,
+            timer: 0, // Timer to track how long the text has been on screen
+            displayTime: 300 // Set display time to 2000ms (2 seconds)
+        });
+    }
+
+    // 更新并绘制所有爱心和文字
+    function updateCanvas() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height); // 清除之前的帧
+
+        // 爱心动画（淡入淡出）
+        hearts.forEach((heart, index) => {
+            if (heart.fadeOut) {
+                heart.opacity -= 0.01; // 淡出
+            } else {
+                heart.opacity += 0.01; // 淡入
+            }
+
+            if (heart.opacity <= 0) {
+                hearts.splice(index, 1);
+            }
+
+            if (heart.opacity >= 1) {
+                heart.fadeOut = true;
+            }
+
+            drawHeart(heart.x, heart.y, heart.size, heart.opacity);
+        });
+
+        // 文字动画（淡入淡出）
+        texts.forEach((text, index) => {
+            // Increment the timer to track how long the text has been on screen
+            text.timer++;
+
+            // If the timer exceeds the display time (2000ms), start fading out
+            if (text.timer >= text.displayTime) {
+                text.fadeOut = true; // Start fading out after 2 seconds
+            }
+
+            if (text.fadeOut) {
+                text.opacity -= 0.01; // 淡出
+            } else {
+                text.opacity += 0.01; // 淡入
+            }
+
+            if (text.opacity <= 0) {
+                texts.splice(index, 1); // 文字显示完毕后移除
+            }
+
+            drawText(text.text, text.x, text.y, text.opacity, text.fontSize, text.color);
+        });
+
+        // 偶尔添加新爱心和文字
+        if (Math.random() < 0.05) {
+            createHeart();
+        }
+        if (Math.random() < 0.01) {
+            createText();
+        }
+
+        requestAnimationFrame(updateCanvas); // 保持动画
+    }
+
+    // 初始化设置
+    window.addEventListener('resize', resizeCanvas); // 在窗口大小变化时重新调整
+    resizeCanvas();
+    updateCanvas(); // 启动动画循环
+</script>
+</body>
+</html>
